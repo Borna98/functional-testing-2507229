@@ -1,12 +1,12 @@
-# functional-testing-&lt;student-id&gt;
+# functional-testing-2507229
 
-[![CI](https://github.com/<your-github-username>/functional-testing-<student-id>/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/<your-github-username>/functional-testing-<student-id>/actions/workflows/ci.yml)
+[![CI](https://github.com/Borna98/functional-testing-2507229/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Borna98/functional-testing-2507229/actions/workflows/ci.yml)
 
 Functional tests, CI/CD and live deployment for `target.py` (16 functions:
 11 data-type, 5 mathematics).
 
-**Live site:** https://&lt;your-service&gt;.onrender.com  
-**Health / deployed commit:** https://&lt;your-service&gt;.onrender.com/health
+**Live site:** https://functional-testing-2507229.onrender.com  
+**Health / deployed commit:** https://functional-testing-2507229.onrender.com/health
 
 ## Project layout
 
@@ -25,8 +25,8 @@ pyproject.toml             pytest, coverage and ruff settings
 ## Setup
 
 ```bash
-git clone https://github.com/<your-github-username>/functional-testing-<student-id>.git
-cd functional-testing-<student-id>
+git clone https://github.com/Borna98/functional-testing-2507229.git
+cd functional-testing-2507229
 python -m venv .venv
 # Windows: .venv\Scripts\activate     macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
