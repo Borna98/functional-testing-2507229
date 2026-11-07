@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Run tests (fail below 100% coverage of target.py)
+        run: >
+          pytest
+          --cov=target --cov-branch
+          --cov-report=term-missing
+          --cov-report=html:htmlcov
+          --cov-report=xml:coverage.xml
+          --cov-fail-under=100
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-py${{ matrix.python-version }}
+          path: |
+            htmlcov/
+            coverage.xml
+          if-no-files-found: ignore
+
+  deploy:
+    name: deploy
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
+    steps:
+      - name: Trigger Render deploy of this commit
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK" ]; then
+            echo "::error::Secret RENDER_DEPLOY_HOOK is not set"
+            exit 1
+          fi
+          curl --fail --silent --show-error -X POST "${RENDER_DEPLOY_HOOK}&ref=${GITHUB_SHA}"
+          echo "Deploy requested for ${GITHUB_SHA}"
+
+  smoke-test:
+    name: smoke-test
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Wait for new SHA on the live site and check it
+        env:
+          LIVE_URL: ${{ vars.LIVE_URL }}
+        run: python scripts/smoke_test.py "$LIVE_URL" "$GITHUB_SHA" 900
