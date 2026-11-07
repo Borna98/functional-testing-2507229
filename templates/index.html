@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>target.py Playground</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1>target.py <span>playground</span></h1>
+      <p class="lead">Run all 16 functions live. Type inputs as Python literals —
+        <code>42</code>, <code>3.5</code>, <code>'text'</code>, <code>None</code>,
+        <code>[1, 2]</code>, <code>{'a': 1}</code>, <code>{1, 2}</code>, <code>(1, 2)</code>,
+        <code>True</code>. Wrong types are allowed, so you can see every error.</p>
+    </div>
+    <div class="filters" role="tablist">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="types">Data types</button>
+      <button class="chip" data-filter="Math">Mathematics</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    {% for name, (category, description, params) in functions.items() %}
+    <form class="card" data-function="{{ name }}" data-group="{{ 'Math' if category == 'Math' else 'types' }}">
+      <div class="card-head">
+        <span class="num">{{ loop.index }}</span>
+        <span class="tag">{{ category }}</span>
+      </div>
+      <h2><code>{{ name }}</code></h2>
+      <p class="desc">{{ description }}</p>
+      {% for param, placeholder in params %}
+      <label>
+        <span>{{ param }}</span>
+        <input name="{{ param }}" placeholder="{{ placeholder }}" autocomplete="off" spellcheck="false">
+      </label>
+      {% endfor %}
+      <button type="submit" class="run">Run</button>
+      <output class="result" aria-live="polite"></output>
+    </form>
+    {% endfor %}
+  </main>
+
+  <footer>
+    <span>Deployed commit</span>
+    <code id="sha" title="{{ sha }}">{{ sha }}</code>
+    <a href="/health">/health</a>
+  </footer>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
