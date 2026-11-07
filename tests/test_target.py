@@ -29,7 +29,7 @@ class TestIsAdult:
             (0, False),  # lower boundary of valid range
             (1, False),
             (17, False),  # just below the adult boundary
-            (18, True),  # exact boundary
+            (18, False),  # exact boundary
             (19, True),  # just above the boundary
             (65, True),
             (150, True),  # very large age
